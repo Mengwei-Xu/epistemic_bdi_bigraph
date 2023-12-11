@@ -1,0 +1,35 @@
+fun ctrl B(vars) = 0;
+fun ctrl NegB(vars) = 0;
+atomic fun ctrl W(weight) = 0;
+
+ctrl Beliefs = 0;
+
+big weighted_belief_bases = Beliefs.(B("a").W(3) | B("b").W(2) | NegB("c").W(1));
+
+fun react add_negb(vars) = 
+	Beliefs.id 
+	--> 
+	Beliefs.(NegB(vars).W(0) | id) 
+	if B(vars).id in param, !NegB(vars).id in param;
+
+fun react add_b(vars) = 
+	Beliefs.id 
+	--> 
+	Beliefs.(B(vars).W(0) | id) 
+	if NegB(vars).id in param, !B(vars).id in param;
+
+begin brs 
+	string vars = {"a", "b", "c"};
+	int weight = [-10:1:10];
+	init weighted_belief_bases;
+	rules =[
+
+	{
+	add_negb(vars),
+	add_b(vars)
+	}
+
+
+
+	];
+end
