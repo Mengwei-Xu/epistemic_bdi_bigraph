@@ -18,6 +18,23 @@ fun react add_b(vars) =
 	Beliefs.(B(vars).W(0) | id) 
 	if NegB(vars).id in param, !B(vars).id in param;
 
+# some idea to get the power set.
+
+# 1. randomely group any two different atoms in a set (if such a set with these two different atoms does not exist yet)
+# 2. Union of these sets (to avoid the duplication of value added): one of these sets must be only contains two atoms
+# for example, a, ¬a, b, ¬b, c, ¬c
+# we have (a,b), (a, ¬b), (a, c), (a, ¬c), (¬a,b), (¬a, ¬b), (¬a, c), (¬a, ¬c), (b, c), (¬b, c).
+# then we have 
+# (a,b) + (b,c) = (a,b,c)
+# if we have d
+# then (a,b,c,d) cannot be obtained through (a,b,c) + (b,c,d)
+# it has to be (a,b,c) + (c,d), i.e. at any time, one set can only contain two atoms
+
+# to avoid (a,b) + (a, ¬b) or (a,b,c) + (a,¬b) we have to check if there is an interaction, the rest can not be the negate of itself
+
+# also for cases such as or (a,b,c) + (a,c) show that there can only be one element interaction. 
+
+
 begin brs 
 	string vars = {"a", "b", "c"};
 	int weight = [-10:1:10];
