@@ -1,52 +1,91 @@
-fun ctrl B(vars) = 0;
-fun ctrl NegB(vars) = 0;
-atomic fun ctrl W(weight) = 0;
 
 ctrl Beliefs = 0;
-
-big weighted_belief_bases = Beliefs.(B("a").W(3) | B("b").W(2) | NegB("c").W(1));
-
-fun react add_negb(vars) = 
-	Beliefs.id 
-	--> 
-	Beliefs.(NegB(vars).W(0) | id) 
-	if B(vars).id in param, !NegB(vars).id in param;
-
-fun react add_b(vars) = 
-	Beliefs.id 
-	--> 
-	Beliefs.(B(vars).W(0) | id) 
-	if NegB(vars).id in param, !B(vars).id in param;
-
-# some idea to get the power set.
-
-# 1. randomely group any two different atoms in a set (if such a set with these two different atoms does not exist yet)
-# 2. Union of these sets (to avoid the duplication of value added): one of these sets must be only contains two atoms
-# for example, a, ¬a, b, ¬b, c, ¬c
-# we have (a,b), (a, ¬b), (a, c), (a, ¬c), (¬a,b), (¬a, ¬b), (¬a, c), (¬a, ¬c), (b, c), (¬b, c).
-# then we have 
-# (a,b) + (b,c) = (a,b,c)
-# if we have d
-# then (a,b,c,d) cannot be obtained through (a,b,c) + (b,c,d)
-# it has to be (a,b,c) + (c,d), i.e. at any time, one set can only contain two atoms
-
-# to avoid (a,b) + (a, ¬b) or (a,b,c) + (a,¬b) we have to check if there is an interaction, the rest can not be the negate of itself
-
-# also for cases such as or (a,b,c) + (a,c) show that there can only be one element interaction. 
+fun ctrl B(atoms) = 0;
+atomic fun ctrl Pw(pw) = 0;
+atomic fun ctrl Nw(nw) = 0;
+atomic ctrl True = 0;
+atomic ctrl False = 0;
 
 
-begin brs 
-	string vars = {"a", "b", "c"};
-	int weight = [-10:1:10];
+big weighted_belief_bases = Beliefs.(B("a").(Pw(3)| Nw(2)) | B("b").(Pw(2)| Nw(3)) | B("c").(Pw(1)| Nw(1)));
+
+
+fun react comparator_atoms_F_1(atom,nw1) =
+	B(atom).(Pw(1)| Nw(nw1) | id) -[1]-> B(atom).(Pw(1)| Nw(nw1) | False | id)
+	if !False in param;
+
+fun react comparator_atoms_F_2(atom,nw2) =
+	B(atom).(Pw(2)| Nw(nw2) | id) -[1]-> B(atom).(Pw(2)| Nw(nw2) | False | id)
+	if !False in param;
+
+fun react comparator_atoms_F_3(atom,nw3) =
+	B(atom).(Pw(3)| Nw(nw3) | id) -[1]-> B(atom).(Pw(3)| Nw(nw3) | False | id)
+	if !False in param;
+
+fun react comparator_atoms_F_4(atom,nw4) =
+	B(atom).(Pw(4)| Nw(nw4) | id) -[1]-> B(atom).(Pw(4)| Nw(nw4) | False | id)
+	if !False in param;
+
+fun react comparator_atoms_F_5(atom,nw5) =
+	B(atom).(Pw(5)| Nw(nw5) | id) -[1]-> B(atom).(Pw(5)| Nw(nw5) | False | id)
+	if !False in param;
+
+fun react comparator_atoms_F_6(atom,nw6) =
+	B(atom).(Pw(6)| Nw(nw6) | id) -[1]-> B(atom).(Pw(6)| Nw(nw6) | False | id)
+	if !False in param;
+
+fun react comparator_atoms_F_7(atom,nw7) =
+	B(atom).(Pw(7)| Nw(nw7) | id) -[1]-> B(atom).(Pw(7)| Nw(nw7) | False | id)
+	if !False in param;
+
+fun react comparator_atoms_F_8(atom,nw8) =
+	B(atom).(Pw(8)| Nw(nw8) | id) -[1]-> B(atom).(Pw(8)| Nw(nw8) | False | id)
+	if !False in param;
+
+fun react comparator_atoms_F_9(atom,nw9) =
+	B(atom).(Pw(9)| Nw(nw9) | id) -[1]-> B(atom).(Pw(9)| Nw(nw9) | False | id)
+	if !False in param;
+
+fun react comparator_atoms_F_10(atom,nw10) =
+	B(atom).(Pw(10)| Nw(nw10) | id) -[1]-> B(atom).(Pw(10)| Nw(nw10) | False | id)
+	if !False in param;
+
+fun react comparator_atoms_T(atom) =
+	B(atom).id -[1]-> B(atom).(id | True)
+	if !False in param, !True in param;
+
+
+begin pbrs 
+	string atoms = {"a", "b", "c"};
+	int nw1 = [1:1:10];
+	int nw2 = [2:1:10];
+	int nw3 = [3:1:10];
+	int nw4 = [4:1:10];
+	int nw5 = [5:1:10];
+	int nw6 = [6:1:10];
+	int nw7 = [7:1:10];
+	int nw8 = [8:1:10];
+	int nw9 = [9:1:10];
+	int nw10 = [1:1:10];
 	init weighted_belief_bases;
 	rules =[
+	{
+	comparator_atoms_F_1(atoms,nw1),
+	comparator_atoms_F_2(atoms,nw2),
+	comparator_atoms_F_3(atoms,nw3),
+	comparator_atoms_F_4(atoms,nw4),
+	comparator_atoms_F_5(atoms,nw5),
+	comparator_atoms_F_6(atoms,nw6),
+	comparator_atoms_F_7(atoms,nw7),
+	comparator_atoms_F_8(atoms,nw8),
+	comparator_atoms_F_9(atoms,nw9),
+	comparator_atoms_F_10(atoms,nw10)
+	},
 
 	{
-	add_negb(vars),
-	add_b(vars)
+	comparator_atoms_T(atoms)
 	}
-
-
 
 	];
 end
+
