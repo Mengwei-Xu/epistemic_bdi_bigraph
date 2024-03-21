@@ -81,6 +81,9 @@ ctrl Revise = 0;
 # (¬c,2) is B("c").Nw(2)
 # (c,) is B("c").Pw(2)
 
+# stochastic actions
+ctrl Effect = 0;
+atomic fun ctrl EffWeight(n) = 0;
 
 
 
@@ -216,20 +219,20 @@ react revise_end =
 
 ## Core actions
 react act_check =
-  Reduce.Act.(Pre.id | Revise.id)
+  Reduce.Act.(Pre.id | id)
   -[1]->
-  Reduce.Act.(Pre.id | Revise.id | Check.id)
-  @[0,1,0];
+  Reduce.Act.(Pre.id | id | Check.id)
+  @[0,1,0] if !Check in param;
 
-# Reduce is swallowed here
-# but instan rules for belief adding and deletion operator still apply 
-react act_T =
+# action execution is extended to model the stochastic effects of action
+fun react act_T(n) =
      Beliefs.id
-  || Reduce.Act.(id | Revise.id | Check.T)
-  -[1]->
+  || Reduce.Act.(id | Effect.(Revise.id | EffWeight(n)) | Check.T)
+  -[n]->
      Beliefs.(id | Revise.id)
   || Nil
   @[0,2];
+
 
 # Reduce is swallowed here
 # but ReduceF will still have to be picked up by the failure recovery rules 
@@ -494,23 +497,31 @@ react a_event_5 =
 react intention_step_1 =
   Intent.(id | Identifier.E(1))
   -[1]->
-  Intent.(Reduce.id | Identifier.E(1));
+  Intent.(Reduce.id | Identifier.E(1))
+  if !Reduce in param;
 react intention_step_2 =
   Intent.(id | Identifier.E(2))
   -[1]->
-  Intent.(Reduce.id | Identifier.E(2));
+  Intent.(Reduce.id | Identifier.E(2))
+  if !Reduce in param;
+
 react intention_step_3 =
   Intent.(id | Identifier.E(3))
   -[1]->
-  Intent.(Reduce.id | Identifier.E(3));
+  Intent.(Reduce.id | Identifier.E(3))
+  if !Reduce in param;
+
 react intention_step_4 =
   Intent.(id | Identifier.E(4))
   -[1]->
-  Intent.(Reduce.id | Identifier.E(4));
+  Intent.(Reduce.id | Identifier.E(4))
+  if !Reduce in param;
+
 react intention_step_5 =
   Intent.(id | Identifier.E(5))
   -[1]->
-  Intent.(Reduce.id | Identifier.E(5));
+  Intent.(Reduce.id | Identifier.E(5))
+  if !Reduce in param;
 
 # as i have not make the rule A_update explicit yet as an non-deterministic action
 # i will just keep them as instan rules using id for now
@@ -529,9 +540,13 @@ react intention_done_succ =
 ## where a drone gets water image from the wetland.
 ## it can either ignore it as the image is a river
 ## or report it as the image is a flood
-big report_back = Act.(Pre.B("flood").1 | Revise.B("report").Pw(0));
+big report_back = Act.(Pre.B("flood").1 | Effect.(Revise.B("report").Pw(0) | EffWeight(3)) | Effect.(Revise.B("report").Pw(5) | EffWeight(7)));
+
+
+
+
 big drone =
-        Beliefs.(B("flood").(Pw(1)| Nw(0)) | B("report").(Pw(2) | Nw(5)))
+        Beliefs.(B("flood").(Pw(4)| Nw(2)) | B("report").(Pw(0) | Nw(0)))
      || Desires.Event{e1}.Identifier.E(1)
      || Intentions.1
      || Plans.(
@@ -561,9 +576,15 @@ begin abrs
     int pw8 = [9:1:10];
     int pw9 = 10;
 
-    # ranges for 0 to 10
+    # ranges of 0 to 10 for positive and negative value for revision
     int r1 = [0:1:10];
     int r2 = [0:1:10];
+
+    # cap for stochastic effect weight
+    int stocap = 10;
+    int stos = [1:1:stocap];
+
+
 
 
     # init model_patrolling;
@@ -623,8 +644,7 @@ begin abrs
             ),
 
             # the follow-up of the above actual reduction of the programs 
-            ( act_T,
-              act_F,
+            ( act_F,
               select_plan_F,
               goal_suc,
               goal_fail,
@@ -656,7 +676,7 @@ begin abrs
 
 
             # non-determinism of rules which have to be a normal rule to allow branching
-
+            {act_T(stos)},
             {select_plan_T_1, 
              select_plan_T_2,
              select_plan_T_3,
@@ -686,7 +706,8 @@ begin abrs
              }
             ];
     actions = [
-        instrules = {try_succ_unique, init_plansets, goal_root_failure_transform, reset_planset, comparator_atoms_T_0, comparator_atoms_T_1, comparator_atoms_T_2, comparator_atoms_T_3, comparator_atoms_T_4, comparator_atoms_T_5, comparator_atoms_T_6, comparator_atoms_T_7, comparator_atoms_T_8, comparator_atoms_T_9, check_end_T, check_end_F, revise_pw, revise_nw, revise_end, reduce_event, act_check, select_plan_check, goal_check, act_T, act_F, select_plan_F, goal_suc, goal_fail, goal_init, conc_succ, goal_persist_nil, conc_nil_L, conc_nil_R, seq_succ, try_succ, goal_persist, conc_fail_L, conc_fail_R, seq_fail, try_failure, goal_reduce, reduce_seq, try_seq, intention_done_succ, intention_done_F},
+        instrules = {try_succ_unique, init_plansets, goal_root_failure_transform, reset_planset, comparator_atoms_T_0, comparator_atoms_T_1, comparator_atoms_T_2, comparator_atoms_T_3, comparator_atoms_T_4, comparator_atoms_T_5, comparator_atoms_T_6, comparator_atoms_T_7, comparator_atoms_T_8, comparator_atoms_T_9, check_end_T, check_end_F, revise_pw, revise_nw, revise_end, reduce_event, act_check, select_plan_check, goal_check, act_F, select_plan_F, goal_suc, goal_fail, goal_init, conc_succ, goal_persist_nil, conc_nil_L, conc_nil_R, seq_succ, try_succ, goal_persist, conc_fail_L, conc_fail_R, seq_fail, try_failure, goal_reduce, reduce_seq, try_seq, intention_done_succ, intention_done_F},
+        executing_action = {act_T},
         selecting_event_1 = {a_event_1},
         selecting_event_2 = {a_event_2},
         selecting_event_3 = {a_event_3},
