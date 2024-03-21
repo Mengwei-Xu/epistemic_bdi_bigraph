@@ -101,6 +101,14 @@ ctrl Revise = 0;
 # we do not support disjunction for now
 
 
+#   int pw0 = [1:1:10];
+fun react comparator_atoms_T_0(atom,pw0) =
+       B(atom).(Pw(pw0) | Nw(0) | id)
+    || Check.(B(atom).1 | id)
+    -[1]-> 
+       B(atom).(Pw(pw0) | Nw(0) | id)
+    || Check.id;
+
 #   int pw1 = [2:1:10];
 fun react comparator_atoms_T_1(atom,pw1) =
        B(atom).(Pw(pw1) | Nw(1) | id)
@@ -523,7 +531,7 @@ react intention_done_succ =
 ## or report it as the image is a flood
 big report_back = Act.(Pre.B("flood").1 | Revise.B("report").Pw(4));
 big drone =
-        Beliefs.(B("flood").(Pw(2)| Nw(4)) | B("report").(Pw(2) | Nw(5)))
+        Beliefs.(B("flood").(Pw(1)| Nw(0)) | B("report").(Pw(2) | Nw(5)))
      || Desires.Event{e1}.Identifier.E(1)
      || Intentions.1
      || Plans.(
@@ -541,12 +549,8 @@ big empty_intention = Intentions.1;
 
 begin abrs
     string n = {"flood", "report"};
-    int max_num_event = 10;
-    int max_num_plan = 10;
-    int en = [1:1:max_num_event]; # event identifier number 
-    int pn = [1:1:max_num_plan]; # event identifier number 
 
-
+    int pw0 = [0:1:10];
     int pw1 = [2:1:10];
     int pw2 = [3:1:10];
     int pw3 = [4:1:10];
@@ -583,6 +587,7 @@ begin abrs
 
             # epistemic belief entialment
             ( 
+            comparator_atoms_T_0(n,pw0),
             comparator_atoms_T_1(n,pw1),
             comparator_atoms_T_2(n,pw2),
             comparator_atoms_T_3(n,pw3),
@@ -681,7 +686,7 @@ begin abrs
              }
             ];
     actions = [
-        instrules = {try_succ_unique, init_plansets, goal_root_failure_transform, reset_planset, comparator_atoms_T_1, comparator_atoms_T_2, comparator_atoms_T_3, comparator_atoms_T_4, comparator_atoms_T_5, comparator_atoms_T_6, comparator_atoms_T_7, comparator_atoms_T_8, comparator_atoms_T_9, check_end_T, check_end_F, revise_pw, revise_nw, revise_end, reduce_event, act_check, select_plan_check, goal_check, act_T, act_F, select_plan_F, goal_suc, goal_fail, goal_init, conc_succ, goal_persist_nil, conc_nil_L, conc_nil_R, seq_succ, try_succ, goal_persist, conc_fail_L, conc_fail_R, seq_fail, try_failure, goal_reduce, reduce_seq, try_seq, intention_done_succ, intention_done_F},
+        instrules = {try_succ_unique, init_plansets, goal_root_failure_transform, reset_planset, comparator_atoms_T_0, comparator_atoms_T_1, comparator_atoms_T_2, comparator_atoms_T_3, comparator_atoms_T_4, comparator_atoms_T_5, comparator_atoms_T_6, comparator_atoms_T_7, comparator_atoms_T_8, comparator_atoms_T_9, check_end_T, check_end_F, revise_pw, revise_nw, revise_end, reduce_event, act_check, select_plan_check, goal_check, act_T, act_F, select_plan_F, goal_suc, goal_fail, goal_init, conc_succ, goal_persist_nil, conc_nil_L, conc_nil_R, seq_succ, try_succ, goal_persist, conc_fail_L, conc_fail_R, seq_fail, try_failure, goal_reduce, reduce_seq, try_seq, intention_done_succ, intention_done_F},
         selecting_event_1 = {a_event_1},
         selecting_event_2 = {a_event_2},
         selecting_event_3 = {a_event_3},
