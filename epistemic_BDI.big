@@ -529,7 +529,7 @@ react intention_done_succ =
 ## where a drone gets water image from the wetland.
 ## it can either ignore it as the image is a river
 ## or report it as the image is a flood
-big report_back = Act.(Pre.B("flood").1 | Revise.B("report").Pw(4));
+big report_back = Act.(Pre.B("flood").1 | Revise.B("report").Pw(0));
 big drone =
         Beliefs.(B("flood").(Pw(1)| Nw(0)) | B("report").(Pw(2) | Nw(5)))
      || Desires.Event{e1}.Identifier.E(1)
@@ -561,9 +561,9 @@ begin abrs
     int pw8 = [9:1:10];
     int pw9 = 10;
 
-    # ranges for 1 to 10
-    int r1 = [1:1:10];
-    int r2 = [1:1:10];
+    # ranges for 0 to 10
+    int r1 = [0:1:10];
+    int r2 = [0:1:10];
 
 
     # init model_patrolling;
